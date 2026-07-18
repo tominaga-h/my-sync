@@ -34,7 +34,7 @@ impl LuaLoader {
         } else {
             let source = fs::read_to_string(file_path)?;
             let lua = Lua::new();
-            lua.load(source).exec().map_err(LuaError::FailToLoadLua)?;
+            lua.load(source).exec().map_err(LuaError::FailedToLoad)?;
             Ok(true)
         }
     }
@@ -78,6 +78,6 @@ mod tests {
         assert!(result.is_err());
 
         let err = result.unwrap_err();
-        assert!(matches!(err, Error::Lua(LuaError::FailToLoadLua(_))));
+        assert!(matches!(err, Error::Lua(LuaError::FailedToLoad(_))));
     }
 }
