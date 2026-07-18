@@ -5,13 +5,13 @@ use std::result;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
-    IoError(#[from] IoError),
+    Io(#[from] IoError),
 
     #[error(transparent)]
-    LuaError(#[from] LuaError),
+    Lua(#[from] LuaError),
 
     #[error(transparent)]
-    StdIoError(#[from] std::io::Error),
+    StdIo(#[from] std::io::Error),
 }
 
 /// Error about Lua
