@@ -8,7 +8,7 @@ use std::fs;
 #[allow(dead_code)]
 pub struct LuaLoader {
     lua: Lua,
-    directory: Utf8PathBuf,
+    source: Utf8PathBuf,
 }
 
 #[allow(dead_code)]
@@ -19,7 +19,7 @@ impl LuaLoader {
         } else {
             Ok(LuaLoader {
                 lua: Lua::new(),
-                directory,
+                source: directory,
             })
         }
     }
@@ -42,7 +42,7 @@ impl LuaLoader {
     }
 
     pub fn load(&self, file: &(impl AsRef<str> + ?Sized)) -> Result<bool> {
-        let file_path = self.directory.join(Utf8PathBuf::from(file));
+        let file_path = self.source.join(Utf8PathBuf::from(file));
         if !file_path.exists() {
             Err(IoError::FileNotFound(file_path).into())
         } else {
