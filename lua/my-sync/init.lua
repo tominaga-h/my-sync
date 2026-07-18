@@ -1,7 +1,8 @@
 --- @meta
+--- @diagnostic disable: unused-local
 
---- @class MySyncModule
 local M = {}
+--- @class MySyncModule
 
 --- Print message
 --- @param msg string Message
