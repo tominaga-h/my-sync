@@ -1,5 +1,7 @@
+use crate::error::{IoError, LuaError, Result};
 use camino::Utf8PathBuf;
-use std::io::{Error, ErrorKind, Result};
+use mlua::Lua;
+use std::fs;
 
 /// ユーザー設定ファイル(luaファイル)を読み込むための構造体
 #[allow(dead_code)]
@@ -16,12 +18,21 @@ impl LuaLoader {
     pub fn from(dir: &(impl AsRef<str> + ?Sized)) -> Result<Self> {
         let path = Utf8PathBuf::from(dir);
         if !path.exists() {
-            Err(Error::new(
-                ErrorKind::NotFound,
-                format!("Directory not found: '{}'", path),
-            ))
+            Err(IoError::DirectoryNotFound(path).into())
         } else {
             Ok(LuaLoader::new(path))
+        }
+    }
+
+    pub fn load(&self, file: &(impl AsRef<str> + ?Sized)) -> Result<bool> {
+        let file_path = self.directory.join(Utf8PathBuf::from(file));
+        if !file_path.exists() {
+            Err(IoError::FileNotFound(file_path).into())
+        } else {
+            let source = fs::read_to_string(file_path)?;
+            let lua = Lua::new();
+            lua.load(source).exec().map_err(LuaError::FailToLoadLua)?;
+            Ok(true)
         }
     }
 }
