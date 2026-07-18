@@ -32,8 +32,8 @@ impl LuaLoader {
         LuaLoader::new(dir)
     }
 
-    pub fn load_functions(&self) -> Result<()> {
-        let result = lua::functions::set_functions(&self.lua);
+    pub fn load_package(&self) -> Result<()> {
+        let result = lua::functions::inject_package(&self.lua);
         if let Err(err) = result {
             Err(LuaError::FailedToLoad(err).into())
         } else {

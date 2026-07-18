@@ -1,2 +1,3 @@
-println("Hello lua World!")
-println("What is Next?")
+local sync = require("my-sync")
+sync.println("Hello lua World!")
+sync.println("What is Next?")
