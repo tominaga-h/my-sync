@@ -18,7 +18,7 @@ pub enum Error {
 #[derive(thiserror::Error, Debug)]
 pub enum LuaError {
     #[error("Failed to load a lua file: {0}")]
-    FailToLoadLua(#[from] mlua::Error),
+    FailedToLoad(#[from] mlua::Error),
 }
 
 /// Error about IO
