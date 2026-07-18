@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+camino = "1.2.4"
+mlua = { version = "0.12.0", features = ["luajit"] }
+
+[dev-dependencies]
+camino-tempfile = "1.4.1"
