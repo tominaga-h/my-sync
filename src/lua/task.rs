@@ -52,6 +52,16 @@ fn fn_task_add(_: &Lua, task_type: TaskType) -> Result<TaskType> {
     Ok(task_type)
 }
 
+fn setup_tasktype(lua: &Lua, module: &Table) -> Result<()> {
+    let task_type = lua.create_table()?;
+
+    task_type.set("Install", TaskType::Install)?;
+
+    module.set("TaskType", task_type)?;
+
+    Ok(())
+}
+
 pub fn setup_task_module(lua: &Lua, module: &Table) -> Result<()> {
     let task_module = lua.create_table()?;
 
@@ -59,6 +69,8 @@ pub fn setup_task_module(lua: &Lua, module: &Table) -> Result<()> {
     task_module.set("add", lua_fn_task_add)?;
 
     module.set("task", task_module)?;
+
+    setup_tasktype(lua, module)?;
 
     Ok(())
 }
