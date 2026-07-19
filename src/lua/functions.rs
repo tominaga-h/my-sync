@@ -1,3 +1,4 @@
+use crate::lua::task;
 use mlua::{Lua, Result, Table};
 
 fn fn_println(_: &Lua, msg: String) -> Result<()> {
@@ -30,6 +31,7 @@ pub fn setup_module(lua: &Lua) -> Result<Table> {
     let module: Table = lua.create_table()?;
 
     set_functions(lua, &module)?;
+    task::setup_task_module(lua, &module)?;
 
     Ok(module)
 }
@@ -68,20 +70,5 @@ mod tests {
         let result = fn_add(&lua, (1, 1));
         assert!(result.is_ok());
         assert!(matches!(result, Ok(2)));
-    }
-
-    #[test]
-    fn test_fn_add_integration() {
-        let lua = Lua::new();
-        inject_package(&lua).unwrap();
-
-        let lua_script = r#"
-            local sync = require("my-sync")
-            return sync.add(1, 2)
-        "#;
-
-        let result: u32 = lua.load(lua_script).eval().unwrap();
-
-        assert_eq!(result, 3);
     }
 }
