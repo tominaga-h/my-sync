@@ -8,7 +8,7 @@ fn main() {
 
     // lua loading
     let loader = LuaLoader::from_buf(target_dir).expect("Failed to initialization for loading Lua");
-    loader.load_functions().expect("Failed to load functions");
+    loader.load_package().expect("Failed to load functions");
 
     println!("--- lua ---");
     loader.load("sample.lua").expect("Failed to load lua");
