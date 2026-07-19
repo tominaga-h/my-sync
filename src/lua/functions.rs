@@ -9,9 +9,12 @@ fn fn_add(_: &Lua, (a, b): (u32, u32)) -> Result<u32> {
     Ok(a + b)
 }
 
-pub fn set_functions(lua: &Lua) -> Result<Table> {
-    let module: Table = lua.create_table()?;
-
+/// set lua functions to module
+///
+/// note:
+/// There is no need to return the module because `mlua::Table` behaves like a reference,
+///  so just setting it will change its contents.
+pub fn set_functions(lua: &Lua, module: &Table) -> Result<()> {
     // lua function: print lines
     let lua_fn_println = lua.create_function(fn_println)?;
     module.set("println", lua_fn_println)?;
@@ -19,6 +22,14 @@ pub fn set_functions(lua: &Lua) -> Result<Table> {
     // lua function: add
     let lua_fn_add = lua.create_function(fn_add)?;
     module.set("add", lua_fn_add)?;
+
+    Ok(())
+}
+
+pub fn setup_module(lua: &Lua) -> Result<Table> {
+    let module: Table = lua.create_table()?;
+
+    set_functions(lua, &module)?;
 
     Ok(module)
 }
@@ -28,7 +39,7 @@ pub fn inject_package(lua: &Lua) -> Result<()> {
     let package: Table = lua.globals().get("package")?;
     let preload: Table = package.get("preload")?;
 
-    let module: Table = set_functions(lua)?;
+    let module: Table = setup_module(lua)?;
 
     // Lua needs a loader function for injection
     let module_capture = module.clone();
