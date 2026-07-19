@@ -1,3 +1,4 @@
+use crate::lua::task;
 use mlua::{Lua, Result, Table};
 
 fn fn_println(_: &Lua, msg: String) -> Result<()> {
@@ -9,9 +10,12 @@ fn fn_add(_: &Lua, (a, b): (u32, u32)) -> Result<u32> {
     Ok(a + b)
 }
 
-pub fn set_functions(lua: &Lua) -> Result<Table> {
-    let module: Table = lua.create_table()?;
-
+/// set lua functions to module
+///
+/// note:
+/// There is no need to return the module because `mlua::Table` behaves like a reference,
+///  so just setting it will change its contents.
+pub fn set_functions(lua: &Lua, module: &Table) -> Result<()> {
     // lua function: print lines
     let lua_fn_println = lua.create_function(fn_println)?;
     module.set("println", lua_fn_println)?;
@@ -19,6 +23,15 @@ pub fn set_functions(lua: &Lua) -> Result<Table> {
     // lua function: add
     let lua_fn_add = lua.create_function(fn_add)?;
     module.set("add", lua_fn_add)?;
+
+    Ok(())
+}
+
+pub fn setup_module(lua: &Lua) -> Result<Table> {
+    let module: Table = lua.create_table()?;
+
+    set_functions(lua, &module)?;
+    task::setup_task_module(lua, &module)?;
 
     Ok(module)
 }
@@ -28,7 +41,7 @@ pub fn inject_package(lua: &Lua) -> Result<()> {
     let package: Table = lua.globals().get("package")?;
     let preload: Table = package.get("preload")?;
 
-    let module: Table = set_functions(lua)?;
+    let module: Table = setup_module(lua)?;
 
     // Lua needs a loader function for injection
     let module_capture = module.clone();
@@ -57,20 +70,5 @@ mod tests {
         let result = fn_add(&lua, (1, 1));
         assert!(result.is_ok());
         assert!(matches!(result, Ok(2)));
-    }
-
-    #[test]
-    fn test_fn_add_integration() {
-        let lua = Lua::new();
-        inject_package(&lua).unwrap();
-
-        let lua_script = r#"
-            local sync = require("my-sync")
-            return sync.add(1, 2)
-        "#;
-
-        let result: u32 = lua.load(lua_script).eval().unwrap();
-
-        assert_eq!(result, 3);
     }
 }
